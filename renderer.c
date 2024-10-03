@@ -3,6 +3,37 @@
 #include <stdlib.h>
 #include <math.h>
 #include <string.h>
+#if defined(_WIN32)
+#include "windows.h"
+#define rsleep(_ms) Sleep(_ms)
+#define sclear() WIN_ClearScreen();
+
+unsigned char
+WIN_ClearScreen(void)
+{
+    HANDLE hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
+
+    if (hConsole == INVALID_HANDLE_VALUE) {
+        fprintf(stderr, "INVALID_HANDLE_VALUE\n");
+        return 1;
+    }
+
+    COORD coord = {0, 0};
+    DWORD dwCount;
+    if (!FillConsoleOutputCharacter(hConsole, ' ', coord.X * coord.Y, coord, &dwCount)) {
+        fprintf(stderr, "INVALID_CLEAR\n");
+        return 1;
+    }
+
+    SetConsoleCursorPosition(hConsole, coord);
+
+    return 0;
+}
+
+#else
+#define rsleep(_ms) usleep(atoi(#_ms ## "000"))
+#define sclear() system("clear");
+#endif
 
 #define XNUMS 40
 #define YNUMS 30
@@ -164,7 +195,7 @@ int main(int argc, char *argv[]){
         return 1;
     }
 
-    for(int i = 0; i < 1440; i++) {
+    for(int i = 0; i < 1440; i += 4) {
         int alpha, beta;
         alpha = beta = i;
 
@@ -209,8 +240,8 @@ int main(int argc, char *argv[]){
         }   
 
         show_display();
-        usleep(12000);
-        system("clear");
+        rsleep(15);
+        sclear();
     }
 
     return 0;
