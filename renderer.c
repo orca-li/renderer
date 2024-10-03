@@ -31,7 +31,7 @@ WIN_ClearScreen(void)
 }
 
 #else
-#define rsleep(_ms) usleep(atoi(#_ms ## "000"))
+#define rsleep(_ms) usleep(_ms * 1000)
 #define sclear() system("clear");
 #endif
 
